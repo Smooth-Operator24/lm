@@ -1,0 +1,42 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+data = {
+    'Feature1': [1, 2, 1.5, 8, 7, 7.5, 3, 4, 3.5],
+    'Feature2': [1, 1.5, 2, 8, 7.5, 7, 3.5, 3, 4]
+}
+df = pd.DataFrame(data)
+print("Original Data:")
+print(df)
+
+scaler = StandardScaler()
+scaled_features = scaler.fit_transform(df[['Feature1', 'Feature2']])
+df_scaled = pd.DataFrame(scaled_features, columns=['Feature1_scaled', 'Feature2_scaled'])
+print("\nScaled Data:")
+print(df_scaled)
+
+k = 2
+kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+kmeans.fit(df_scaled)
+
+cluster_labels = kmeans.labels_
+centroids = kmeans.cluster_centers_
+df['Cluster'] = cluster_labels
+print("\nData with Cluster Labels:")
+print(df)
+
+plt.figure(figsize=(8, 6))
+for i in range(k):
+    plt.scatter(df_scaled[df['Cluster'] == i]['Feature1_scaled'],
+                df_scaled[df['Cluster'] == i]['Feature2_scaled'],
+                label=f'Cluster {i}')
+plt.scatter(centroids[:, 0], centroids[:, 1], s=300, c='red', marker='X', label='Centroids')
+plt.title('K-Means Clustering')
+plt.xlabel('Feature1 (Scaled)')
+plt.ylabel('Feature2 (Scaled)')
+plt.legend()
+plt.grid(True)
+plt.show()
